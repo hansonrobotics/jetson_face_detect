@@ -1,0 +1,15 @@
+<launch>
+    <!-- Start the face detection node -->
+    <node name="face_detect" pkg="face_detect" type="face_detect_node.py" output="screen" required="true"/>
+
+    <!-- Start the usb_cam node -->
+    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="log" required="true">
+        <param name="video_device" value="/dev/video0"/>
+        <param name="image_width" value="640"/>
+        <param name="image_height" value="480"/>
+        <param name="pixel_format" value="yuyv"/>
+        <param name="framerate" value="30"/>
+        <param name="buffers" value="16" />
+        <param name="camera_frame_id" value="usb_cam"/>
+    </node>
+</launch>
