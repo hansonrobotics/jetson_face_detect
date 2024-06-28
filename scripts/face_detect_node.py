@@ -31,6 +31,7 @@ class FaceDetectionNode:
 
         self.image_sub = rospy.Subscriber("/usb_cam/image_raw", Image, self.callback)
         self.face_detect_pub = rospy.Publisher("face_detect/detect_results", Face, queue_size=40)
+        self.face_detect_img_pub = rospy.Publisher("face_detect/detect_results_img", Image, queue_size=40)
 
     def update_cfg(self, config, level=None):
         self.cfg = config
@@ -60,12 +61,16 @@ class FaceDetectionNode:
                 face_detection_result.bounding_box.width = int(detection.Width)
                 self.face_detect_pub.publish(face_detection_result)
             
-            # For Debug checking
-            #cv_image = jetson_utils.cudaToNumpy(cuda_image)
-            #cv_image = cv2.cvtColor(cv_image, cv2.COLOR_RGBA2BGR)
-            #cv2.circle(cv_image, (int(320+320*self.cfg.eye_center_x), int(240+240*self.cfg.eye_center_y)), 4, (255,0,0), 1)
+            cv_image = jetson_utils.cudaToNumpy(cuda_image)
+            cv_image = cv2.cvtColor(cv_image, cv2.COLOR_RGBA2BGR)
+            cv2.circle(cv_image, (int(320+320*self.cfg.eye_center_x), int(240+240*self.cfg.eye_center_y)), 4, (255,0,0), 1)
+            
+            # For local debug
             #cv2.imshow("USB Camera Stream with Detections", cv_image)
             #cv2.waitKey(1)
+
+            result_img = self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8")
+            self.face_detect_img_pub.publish(result_img)
                 
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {0}".format(e))
